@@ -7,7 +7,7 @@ app = Flask(__name__)
 # 加载配置文件
 with open('config.yaml', 'r', encoding='utf-8') as f:
     data = yaml.load(f, Loader=yaml.FullLoader)
-    for key, value in data['config'].items():
+    for key, value in data.items():
         app.config[key] = value
 # restful
 api = Api(app)

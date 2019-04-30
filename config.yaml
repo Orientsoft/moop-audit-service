@@ -1,15 +1,14 @@
-config:
-  #应用监听的ip
-  HOST: '0.0.0.0'
-  #应用的端口
-  PORT: 7777
-  #应用debug模式
-  DEBUG: true
-  #ES地址
-  ES_HOST: '192.168.0.21'
-  #ES用户名
-  ES_USER: 'elastic'
-  #ES密码
-  ES_PWD: 'd2VsY29tZTEK'
-  #ES端口
-  ES_PORT: '9200'
+#应用监听的ip
+HOST: '0.0.0.0'
+#应用的端口
+PORT: 7777
+#应用debug模式
+DEBUG: true
+#ES地址
+ES_HOST: '192.168.0.21'
+#ES用户名
+ES_USER: 'elastic'
+#ES密码
+ES_PWD: 'd2VsY29tZTEK'
+#ES端口
+ES_PORT: '9200'
