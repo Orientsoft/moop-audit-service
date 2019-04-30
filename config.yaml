@@ -12,3 +12,6 @@ ES_USER: 'elastic'
 ES_PWD: 'd2VsY29tZTEK'
 #ES端口
 ES_PORT: '9200'
+#程序的mongo信息
+MONGODB_URI: 'mongodb://192.168.0.31:32017'
+MONGODB_NAME: 'MOOP_SERVICE'

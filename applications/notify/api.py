@@ -2,6 +2,7 @@ from flask_restful import Resource
 from flask import request
 import queue
 from functools import wraps
+import datetime
 
 Q = queue.Queue(0)
 
@@ -15,46 +16,47 @@ def status():
 
 def worker():
     while not Q.empty():
-        status()
         item = Q.get()
         if item is None:
             break
         do_work(item)
         Q.task_done()
+    return ''
 
 
 def do_work(item):
     print(item)
-    from ext import get_connect
+    from ext import get_connect, get_db
     es = get_connect()
+    db = get_db()
     if item['type'] == 'start':
-        es.indices.create(index='moop-oplog', ignore=400)
         del item['type']
-        es.index(index='moop-oplog', doc_type='moop', body=item)
+        # save to mongodb
+        db.oplog.insert(item)
+        # save to es
+        month = datetime.datetime.now().strftime('%Y-%m')
+        index = 'moop-oplog-{}'.format(month)
+        del item['_id']
+        es.index(index=index, doc_type='moop', body=item)
     elif item['type'] == 'stop':
         try:
-            query = {
-                "query": {
-                    "bool": {
-                        "must": [
-                            {"term": {"tenant_id.keyword": item['tenant_id']}},
-                            {"term": {"user_name.keyword": item['user_name']}},
-                        ]
-                    }
-                },
-                "sort": {"start": "desc"},
-                "size": 1
-            }
-            result = es.search(index="moop-oplog", body=query)
-            temp = result['hits']['hits']
-            if temp:
-                source = temp[0]['_source']
-                _id = temp[0]['_id']
-                source['last_activity'] = item['last_activity']
-                source['end'] = item['end']
-                es.update("moop-oplog", _id, doc_type='moop', body={"doc": source})
+            # update mongodb
+            result = db.oplog.find(
+                {'tenant_id': item['tenant_id'], 'user_name': item['user_name'], 'end': {'$exists': False}}).sort(
+                [('start', -1)]).limit(1)
+            if result:
+                for r in result:
+                    _id = r['_id']
+                db.oplog.update({'_id': _id},
+                                {'$set': {'end': item['end'], 'last_activity': item['last_activity']}})
             else:
-                pass
+                print('start not found or end is writed')
+
+            # save to es
+            month = datetime.datetime.now().strftime('%Y-%m')
+            index = 'moop-oplog-{}'.format(month)
+            del item['type']
+            es.index(index=index, doc_type='moop', body=item)
         except Exception as e:
             print(e)
     else:

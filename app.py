@@ -18,7 +18,7 @@ api.add_resource(Stop, '/notify/end')
 def config_daily_task():
     from apscheduler.schedulers.background import BackgroundScheduler
     scheduler = BackgroundScheduler()
-    scheduler.add_job(worker, 'cron', minute='*/1', max_instances=2)
+    scheduler.add_job(worker, 'cron', minute='*/1', max_instances=1)
     scheduler.start()
 
 
