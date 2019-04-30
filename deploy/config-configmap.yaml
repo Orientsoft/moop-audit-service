@@ -1,0 +1,21 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: es-service-config
+
+data:
+    config.yaml: |-
+      HOST: '0.0.0.0'
+      #应用的端口
+      PORT: 80
+      #应用debug模式
+      DEBUG: false
+      #ES地址
+      ES_HOST: 'elasticsearch.monitoring.svc'
+      #ES用户名
+      ES_USER: 'elastic'
+      #ES密码
+      ES_PWD: 'd2VsY29tZTEK'
+      #ES端口
+      ES_PORT: '9200'

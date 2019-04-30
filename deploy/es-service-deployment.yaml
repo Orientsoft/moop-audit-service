@@ -1,0 +1,44 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: es-service
+  # namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: moop
+      service: es-service
+  template:
+    metadata:
+      labels:
+        app: moop
+        service: es-service
+    spec:
+      serviceAccountName: moop
+
+      containers:
+      - name: moop-es-service
+        image: registry.datadynamic.io/moop/moop-es-service:{IMAGE_TAG_for_change}
+        volumeMounts:
+        - name:  es-service-config
+          mountPath: /app/config.yaml
+          subPath: config.yaml
+
+        resources: {}
+          # requests:
+          #   memory: 32Mi
+          #   cpu: 40m
+          # limits:
+          #   memory: 2Gi
+          #   cpu: 1
+
+
+      imagePullSecrets:
+      - name: regcred
+
+      volumes:
+      - name:  es-service-config
+        configMap:
+          name: es-service-config
