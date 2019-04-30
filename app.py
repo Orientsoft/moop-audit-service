@@ -22,4 +22,4 @@ def config_daily_task():
     scheduler.start()
 
 
-# config_daily_task()
+config_daily_task()
