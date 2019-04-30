@@ -1,7 +1,7 @@
 FROM python:3.6-alpine as base
 
 FROM base as builder
-RUN apk add --no-cache gcc musl-dev tzdate
+RUN apk add --no-cache gcc musl-dev tzdata
 
 RUN mkdir /install
 WORKDIR /install
