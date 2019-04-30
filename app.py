@@ -1,8 +1,11 @@
 from flask import Flask
 from flask_restful import Api
 import yaml
-from applications.notify.api import Start, Stop, worker
+from applications.notify.api import Start, Stop
+from multiprocessing import Pool
+import os
 
+cpu_count = os.cpu_count()
 app = Flask(__name__)
 # 加载配置文件
 with open('config.yaml', 'r', encoding='utf-8') as f:
@@ -14,12 +17,4 @@ api = Api(app)
 api.add_resource(Start, '/notify/start')
 api.add_resource(Stop, '/notify/end')
 
-
-def config_daily_task():
-    from apscheduler.schedulers.background import BackgroundScheduler
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(worker, 'cron', minute='*/1', max_instances=1)
-    scheduler.start()
-
-
-config_daily_task()
+app.config['pool'] = Pool(cpu_count)

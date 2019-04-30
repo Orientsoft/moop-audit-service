@@ -1,28 +1,7 @@
 from flask_restful import Resource
 from flask import request
-import queue
 from functools import wraps
 import datetime
-
-Q = queue.Queue(0)
-
-
-def status():
-    print(Q.queue)  # 查看队列中所有元素
-    print(Q.qsize())  # 返回队列的大小
-    print(Q.empty())  # 判断队空
-    print(Q.full())  # 判断队满
-
-
-def worker():
-    while not Q.empty():
-        item = Q.get()
-        if item is None:
-            break
-        do_work(item)
-        Q.task_done()
-    return ''
-
 
 def do_work(item):
     print(item)
@@ -81,9 +60,11 @@ def check_start(f):
 class Start(Resource):
     @check_start
     def post(self):
+        from app import app
         request.json['type'] = 'start'
+        app.config['pool'].apply_async(do_work, (request.json,))
         # 放进队列
-        Q.put(request.json)
+        # Q.put(request.json)
         return {}
 
 
@@ -104,7 +85,7 @@ def check_stop(f):
 class Stop(Resource):
     @check_stop
     def post(self):
+        from app import app
         request.json['type'] = 'stop'
-        # 放进队列
-        Q.put(request.json)
+        app.config['pool'].apply_async(do_work, (request.json,))
         return {}
