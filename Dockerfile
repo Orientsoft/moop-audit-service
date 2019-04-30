@@ -10,6 +10,7 @@ RUN pip install --install-option="--prefix=/install" -r /requirements.txt -i htt
 
 FROM base
 COPY --from=builder /install /usr/local
+ENV TZ=Asia/Shanghai
 WORKDIR /app
 COPY . .
 
