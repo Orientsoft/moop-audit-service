@@ -14,7 +14,7 @@ def status():
 
 
 def worker():
-    while True:
+    while not Q.empty():
         status()
         item = Q.get()
         if item is None:

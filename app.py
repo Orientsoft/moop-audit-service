@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_restful import Api
 import yaml
-from notify import Start, Stop, worker
+from applications.notify.api import Start, Stop, worker
 
 app = Flask(__name__)
 # 加载配置文件
