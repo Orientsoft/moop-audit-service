@@ -61,11 +61,13 @@ class Start(Resource):
     @check_start
     def post(self):
         from app import app
-        request.json['type'] = 'start'
-        app.config['pool'].apply_async(do_work, (request.json,))
-        # 放进队列
-        # Q.put(request.json)
-        return {}
+        try:
+            request.json['type'] = 'start'
+            request.json['start'] = datetime.datetime.strptime(request.json['start'],'%Y-%m-%dT%H:%M:%S.%f')
+            app.config['pool'].apply_async(do_work, (request.json,))
+            return {}
+        except:
+            return '数据错误',400
 
 
 def check_stop(f):
@@ -87,5 +89,7 @@ class Stop(Resource):
     def post(self):
         from app import app
         request.json['type'] = 'stop'
+        request.json['stop'] = datetime.datetime.strptime(request.json['stop'], '%Y-%m-%dT%H:%M:%S.%f')
+        request.json['last_activity'] = datetime.datetime.strptime(request.json['last_activity'], '%Y-%m-%dT%H:%M:%S.%f')
         app.config['pool'].apply_async(do_work, (request.json,))
         return {}
