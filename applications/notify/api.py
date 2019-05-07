@@ -88,8 +88,11 @@ class Stop(Resource):
     @check_stop
     def post(self):
         from app import app
-        request.json['type'] = 'stop'
-        request.json['end'] = datetime.datetime.strptime(request.json['end'], '%Y-%m-%dT%H:%M:%S.%f')
-        request.json['last_activity'] = datetime.datetime.strptime(request.json['last_activity'], '%Y-%m-%dT%H:%M:%S.%f')
-        app.config['pool'].apply_async(do_work, (request.json,))
-        return {}
+        try:
+            request.json['type'] = 'stop'
+            request.json['end'] = datetime.datetime.strptime(request.json['end'], '%Y-%m-%dT%H:%M:%S.%f')
+            request.json['last_activity'] = datetime.datetime.strptime(request.json['last_activity'], '%Y-%m-%dT%H:%M:%S.%f')
+            app.config['pool'].apply_async(do_work, (request.json,))
+            return {}
+        except:
+            return '数据错误', 400
