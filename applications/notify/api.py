@@ -2,6 +2,7 @@ from flask_restful import Resource
 from flask import request
 from functools import wraps
 import datetime
+import logging
 
 def do_work(item):
     print(item)
@@ -94,5 +95,6 @@ class Stop(Resource):
             request.json['last_activity'] = datetime.datetime.strptime(request.json['last_activity'], '%Y-%m-%dT%H:%M:%S.%f')
             app.config['pool'].apply_async(do_work, (request.json,))
             return {}
-        except:
+        except Exception as e:
+            logging.error(e)
             return '数据错误', 400
