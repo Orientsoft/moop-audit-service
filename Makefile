@@ -3,7 +3,7 @@
 DEPLOY_NAMESPACE = moop-dev
 TAG			= $(shell git describe --tags --always)
 REGISTRY	= registry.datadynamic.io/moop
-IMAGE		= moop-es-service
+IMAGE		= moop-audit-service
 
 
 build: 
@@ -14,8 +14,8 @@ push: build
 
 deploy: push
 	# replace image tag on deployment.yaml
-	sed -i 's/{IMAGE_TAG_for_change}/$(TAG)/g' deploy/es-service-deployment.yaml
+	sed -i 's/{IMAGE_TAG_for_change}/$(TAG)/g' deploy/audit-service-deployment.yaml
 	# apply change
 	kubectl apply -f deploy/ --namespace "$(DEPLOY_NAMESPACE)"
 	# restore deployment.yaml
-	sed -i 's/$(TAG)/{IMAGE_TAG_for_change}/g' deploy/es-service-deployment.yaml
+	sed -i 's/$(TAG)/{IMAGE_TAG_for_change}/g' deploy/audit-service-deployment.yaml

@@ -2,27 +2,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: es-service
+  name: audit-service
   # namespace: demo
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: moop
-      service: es-service
+      service: audit-service
   template:
     metadata:
       labels:
         app: moop
-        service: es-service
+        service: audit-service
     spec:
       serviceAccountName: moop
 
       containers:
-      - name: moop-es-service
-        image: registry.datadynamic.io/moop/moop-es-service:{IMAGE_TAG_for_change}
+      - name: moop-audit-service
+        image: registry.datadynamic.io/moop/moop-audit-service:{IMAGE_TAG_for_change}
         volumeMounts:
-        - name:  es-service-config
+        - name:  audit-service-config
           mountPath: /app/config.yaml
           subPath: config.yaml
 
@@ -39,6 +39,6 @@ spec:
       - name: regcred
 
       volumes:
-      - name:  es-service-config
+      - name:  audit-service-config
         configMap:
-          name: es-service-config
+          name: audit-service-config
