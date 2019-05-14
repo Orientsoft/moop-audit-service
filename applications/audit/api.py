@@ -36,9 +36,9 @@ class Statistic(Resource):
         ])
         returnObj = {}
         for r in result:
-            user_id = r['_id']['user_id']
+            user_id = r['_id']['user_id'] or 0
             project_id = r['_id']['project_id']
-            project_avg = projectinfo[project_id]
+            project_avg = projectinfo[project_id] or 0
             project_name = r['_id']['project_name']
             count = int(r['count'])
             usetime = int(r['usetime'] / 1000 / 60 )
@@ -46,16 +46,16 @@ class Statistic(Resource):
                 returnObj[user_id] = {
                     'count': count,
                     'totaltime': usetime,
-                    'chart': {
-                        'x': [project_name],
-                        'y1': [usetime],
-                        'y2': [project_avg]
-                    }
+                    'coordinate':{'x': [project_name],'y':'学时'},
+                    'data':[
+                        {'value': [usetime], 'label': '用时'},
+                        {'value': [project_avg], 'label': '平均值'},
+                    ]
                 }
             else:
                 returnObj[user_id]['count'] += count
                 returnObj[user_id]['totaltime'] += usetime
-                returnObj[user_id]['chart']['x'].append(project_name)
-                returnObj[user_id]['chart']['y1'].append(usetime)
-                returnObj[user_id]['chart']['y2'].append(project_avg)
+                returnObj[user_id]['coordinate']['x'].append(project_name)
+                returnObj[user_id]['data'][0]['value'].append(usetime)
+                returnObj[user_id]['data'][1]['value'].append(project_avg)
         return returnObj
