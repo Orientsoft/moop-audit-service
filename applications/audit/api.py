@@ -4,7 +4,7 @@ from flask_restful import Resource
 from flask import request, jsonify
 
 
-class Statistic(Resource):
+class Detail(Resource):
     def get(self):
         classroom_id = request.args.get('classroom_id')
         tenant_id = request.args.get('tenant_id')
@@ -23,7 +23,6 @@ class Statistic(Resource):
         projectinfo = {}
         for p in project:
             projectinfo[p['_id']] = int(p['usetime'] / 1000 / 60 / p['count'])
-        print(projectinfo)
         # 学生使用情况
         result = db.oplog.aggregate([
             {'$match': {'classroom_id': classroom_id, 'tenant_id': tenant_id}},
@@ -41,13 +40,13 @@ class Statistic(Resource):
             project_avg = projectinfo[project_id] or 0
             project_name = r['_id']['project_name']
             count = int(r['count'])
-            usetime = int(r['usetime'] / 1000 / 60 )
+            usetime = int(r['usetime'] / 1000 / 60)
             if user_id not in returnObj:
                 returnObj[user_id] = {
                     'count': count,
                     'totaltime': usetime,
-                    'coordinate':{'x': [project_name],'y':'学时'},
-                    'data':[
+                    'coordinate': {'x': [project_name], 'y': '学时(min)'},
+                    'data': [
                         {'value': [usetime], 'label': '用时'},
                         {'value': [project_avg], 'label': '平均值'},
                     ]
@@ -58,4 +57,39 @@ class Statistic(Resource):
                 returnObj[user_id]['coordinate']['x'].append(project_name)
                 returnObj[user_id]['data'][0]['value'].append(usetime)
                 returnObj[user_id]['data'][1]['value'].append(project_avg)
+        return returnObj
+
+
+class Statistic(Resource):
+    def get(self):
+        classroom_id = request.args.get('classroom_id')
+        tenant_id = request.args.get('tenant_id')
+        from ext import get_db
+        db = get_db()
+        total = len(db.oplog.distinct('user_id', {'classroom_id': classroom_id, 'tenant_id': tenant_id}))
+        # 项目使用情况
+        project = db.oplog.aggregate([
+            {'$match': {'classroom_id': classroom_id, 'tenant_id': tenant_id}},
+            {'$project': {'project_id': 1, 'project_name': 1, 'diff': {'$subtract': ['$end', '$start']}}},
+            {'$group': {'_id': {'project_id': '$project_id', 'project_name': '$project_name'},
+                        'count': {'$sum': 1},
+                        'usetime': {'$sum': '$diff'}
+                        }
+             }
+        ])
+        returnObj = {
+            'coordinate': {'x': [], 'y': ''},
+            'data': [
+                {'value': [], 'label': '平均次数'},
+                {'value': [], 'label': '平均耗时(min)'},
+            ]
+        }
+        for r in project:
+            project_id = r['_id']['project_id']
+            project_name = r['_id']['project_name']
+            count = round(r['count'] / total,2)
+            usetime = int(r['usetime'] / 1000 / 60 / total)
+            returnObj['coordinate']['x'].append(project_name)
+            returnObj['data'][0]['value'].append(count)
+            returnObj['data'][1]['value'].append(usetime)
         return returnObj

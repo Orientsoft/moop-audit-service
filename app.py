@@ -2,7 +2,7 @@ from flask import Flask
 from flask_restful import Api
 import yaml
 from applications.notify.api import Start, Stop
-from applications.audit.api import Statistic
+from applications.audit.api import Statistic,Detail
 from multiprocessing import Pool
 import os
 
@@ -17,6 +17,7 @@ with open('config.yaml', 'r', encoding='utf-8') as f:
 api = Api(app)
 api.add_resource(Start, '/notify/start')
 api.add_resource(Stop, '/notify/end')
-api.add_resource(Statistic, '/student/stat')
+api.add_resource(Detail, '/student/stat')
+api.add_resource(Statistic, '/project/stat')
 
 app.config['pool'] = Pool(cpu_count)
