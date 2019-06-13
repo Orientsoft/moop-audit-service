@@ -5,6 +5,8 @@ from applications.notify.api import Start, Stop
 from applications.audit.api import Statistic,Detail
 from multiprocessing import Pool
 import os
+import logging
+import traceback
 
 cpu_count = os.cpu_count()
 app = Flask(__name__)
@@ -21,3 +23,10 @@ api.add_resource(Detail, '/student/stat')
 api.add_resource(Statistic, '/project/stat')
 
 app.config['pool'] = Pool(cpu_count)
+
+
+
+@app.errorhandler(Exception)
+def error_handler(error):
+    logging.error('Request Error: {}\nStack: {}\n'.format(error, traceback.format_exc()))
+    return 'AUDIT-SERVICE 未知错误', 500
