@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
 from flask_restful import Resource
-from flask import request
+from flask import request, jsonify
 import datetime
 import logging
 from applications.notify.check import check_start, check_stop
@@ -15,6 +15,7 @@ class Start(Resource):
         try:
             request.json['type'] = 'start'
             request.json['start'] = datetime.datetime.strptime(request.json['start'], '%Y-%m-%dT%H:%M:%S.%f')
+            # 起一个异步非阻塞式进程
             app.config['pool'].apply_async(do_work, (request.json,))
             return {}
         except:
@@ -35,3 +36,18 @@ class Stop(Resource):
         except Exception as e:
             logging.error(e)
             return '数据错误', 400
+
+
+class Dashboard(Resource):
+    def get_now(self):
+        from ext import get_db
+        db = get_db()
+        # 查询没有end字段的就是未关闭正在使用的用户
+        active = db.oplog.find({"tenant_id": request.json['tenant_id'], 'end': {'$exists': 0}})
+        # 不用count是因为考虑之后可能会将列表展开而不只是统计人数
+        return jsonify({'active': len(active)})
+
+    # def get_history(self):
+    #     from ext import get_db
+    #     db = get_db()
+

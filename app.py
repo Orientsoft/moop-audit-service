@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_restful import Api
 import yaml
-from applications.notify.api import Start, Stop
+from applications.notify.api import Start, Stop, Dashboard
 from applications.audit.api import Statistic,Detail
 from multiprocessing import Pool
 import os
@@ -21,7 +21,8 @@ api.add_resource(Start, '/notify/start')
 api.add_resource(Stop, '/notify/end')
 api.add_resource(Detail, '/student/stat')
 api.add_resource(Statistic, '/project/stat')
-
+api.add_resource(Dashboard, '/dashboard/activate')
+# 此处起一个进程池
 app.config['pool'] = Pool(cpu_count)
 
 
