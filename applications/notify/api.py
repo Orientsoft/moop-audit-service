@@ -49,4 +49,3 @@ class Dashboard(Resource):
     # def get_history(self):
     #     from ext import get_db
     #     db = get_db()
-
