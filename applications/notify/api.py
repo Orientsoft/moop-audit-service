@@ -39,11 +39,11 @@ class Stop(Resource):
 
 
 class Dashboard(Resource):
-    def get_now(self):
+    def get(self):
         from ext import get_db
         db = get_db()
         # 查询没有end字段的就是未关闭正在使用的用户
-        active = db.oplog.find({"tenant_id": request.json['tenant_id'], 'end': {'$exists': 0}})
+        active = db.oplog.find({"tenant_id": request.args['tenant_id'], 'end': {'$exists': 0}})
         # 不用count是因为考虑之后可能会将列表展开而不只是统计人数
         return jsonify({'active': len(active)})
 
