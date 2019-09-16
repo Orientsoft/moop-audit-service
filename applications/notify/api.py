@@ -42,8 +42,10 @@ class Dashboard(Resource):
     def get(self):
         from ext import get_db
         db = get_db()
-        # 查询没有end字段的就是未关闭正在使用的用户
-        count = db.oplog.find({"tenant_id": request.args['tenant_id'], 'end': {'$exists': 0}}).count()
+        # 查询没有end字段的就是未关闭正在使用的用户//增加start在四小时以内，筛除意外情况关闭的容器
+        start = datetime.datetime.now() - datetime.timedelta(hours=4)
+        count = db.oplog.find(
+            {"tenant_id": request.args['tenant_id'], 'end': {'$exists': 0}, 'start': {'$gte': start}}).count()
         return jsonify({'active': count})
 
     # def get_history(self):
